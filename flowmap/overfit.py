@@ -47,7 +47,14 @@ def overfit(cfg_dict: DictConfig) -> None:
     callbacks, logger, checkpoint_path, output_dir = run_common_training_setup(
         cfg, cfg_dict
     )
-    device = torch.device("cuda:0")
+    output_dir = Path(cfg_dict.output_dir)
+    print(f"OUTPUT_DIR: {output_dir}")
+
+    device = torch.device("cpu")
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        device = torch.device("mps")
 
     # Load the full-resolution batch.
     dataset = get_dataset(cfg.dataset, "train", cfg.frame_sampler)
@@ -90,6 +97,9 @@ def overfit(cfg_dict: DictConfig) -> None:
     if checkpoint_path is not None:
         checkpoint = torch.load(checkpoint_path)
         model_wrapper.load_state_dict(checkpoint["state_dict"], strict=False)
+
+    # Print all gpu used by lightning
+    print(f"GPUs: {torch.cuda.device_count()}")
 
     trainer = Trainer(
         max_epochs=-1,

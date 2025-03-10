@@ -10,6 +10,8 @@ defaults:
   - visualizer: [summary, trajectory]
   - _self_
 
+output_dir: outputs/local
+
 wandb:
   project: flowmap
   mode: disabled
